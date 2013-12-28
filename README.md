@@ -44,6 +44,8 @@ Or, like
 
 Note that if you try to schedule a task with an interval shorter than DayPlanner's interval, it'll complain and fail. If you shorten DayPlanner's interval to less than that of one of its tasks, it'll probably also complain and fail. Use your best judgment.
 
+Specify these things in config/day_planner_tasks.rb. Note that you probably won't manage to precede that first minute-long wait. I may default to a shorter value in the future. I dunno.
+
 ## Contributing
 
 1. Fork it

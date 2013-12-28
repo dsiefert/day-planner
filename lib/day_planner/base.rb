@@ -28,24 +28,18 @@ module DayPlanner
 		end
 
 		def interval=(value)
-			tasks.each do |t|
-				Rails.logger.warn("DayPlanner: Check interval exceeds the interval of one of its tasks. The task will perform at most every #{value.inspect}.") if t.interval > value
-			end
-
 			@@interval = value
 		end
 
 	private
 		def check_schedule
-			# Rails.logger.debug("DayPlanner is checking for tasks to perform")
-
 			tasks.each do |t|
 				if Time.now > t.last_executed + t.interval
 					begin
 						t.perform
 					rescue => e
-						Rails.logger.warn("DayPlanner: Scheduled task threw an error! Behave yourselves!")
-						Rails.logger.warn(e.inspect)
+						puts "DayPlanner: Scheduled task threw an error! Behave yourselves!"
+						puts e.inspect
 					end
 				end
 			end
@@ -80,8 +74,8 @@ module DayPlanner
 			begin
 				perform
 			rescue => e
-				Rails.logger.warn("DayPlanner: Task caused error on first performance. There's no second chance for a good first impression!")
-				Rails.logger.warn(e.inspect)
+				puts "DayPlanner: Task caused error on first performance. There's no second chance for a good first impression!"
+				puts e.inspect
 			end
 		end
 	end
@@ -89,14 +83,4 @@ end
 
 DayPlanner.activate
 
-if defined?(Rails)
-	module DayPlanner
-		class Railtie < Rails::Railtie
-			initializer "Include DayPlanner" do
-				ActiveSupport.on_load(:action_controller) do
-					include DayPlanner
-				end
-			end
-		end
-	end
-end
+require File.expand_path('config/day_planner_tasks') if defined?(Rails)
