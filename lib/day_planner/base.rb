@@ -22,7 +22,7 @@ module DayPlanner
 		def activate
 			@@master.kill if defined?(@@master)
 
-			if Rails && Rails.logger
+			if defined?(Rails) && Rails.logger
 				Rails.logger.info("DayPlanner activated.")
 			else
 				puts "DayPlanner activated."
@@ -65,7 +65,7 @@ module DayPlanner
 					begin
 						t.perform
 					rescue => e
-						if Rails && Rails.logger
+						if defined?(Rails) && Rails.logger
 							Rails.logger.error("DayPlanner: Scheduled task threw an error! Behave yourselves!\n#{e.inspect}")
 						else
 							puts "DayPlanner: Scheduled task threw an error! Behave yourselves!\n#{e.inspect}"
@@ -80,12 +80,26 @@ module DayPlanner
 		attr_reader :last_executed, :interval
 
 		def perform
-			@last_executed = Time.now
+			if @environment.nil? || (defined?(Rails) && defined?(Rails.environment) && Rails.environment == @environment)
+				@last_executed = Time.now
 
-			@thread.kill if defined?(@thread)
-
-			@thread = Thread.new do
 				@task.call
+			else
+				log_info = "DayPlanner: "
+
+				if @name
+					log_info += "Skipping task '#{@name}'"
+				else
+					log_info += "Skipping a task"
+				end
+
+				log_info += " because it's set for environment '#{@environment}'."
+
+				if defined?(Rails) && Rails.logger
+					Rails.logger.info(log_info)
+				else
+					puts log_info
+				end
 			end
 		end
 
@@ -112,6 +126,8 @@ module DayPlanner
 				end
 			end
 
+			@environment = options.delete(:environment) if options[:environment]
+
 			@task = block
 
 			DayPlanner.tasks.push(self)
@@ -119,7 +135,7 @@ module DayPlanner
 			log_info += ": '#{@name}'" unless @name.nil?
 			log_info += " with an execution interval of #{@interval.to_i} seconds."
 
-			if Rails && Rails.logger
+			if defined?(Rails) && Rails.logger
 				Rails.logger.info(log_info)
 			else
 				puts log_info
@@ -128,7 +144,7 @@ module DayPlanner
 			begin
 				perform
 			rescue => e
-				if Rails && Rails.logger
+				if defined?(Rails) && Rails.logger
 					Rails.logger.error("DayPlanner: Task caused error on first performance. There's no second chance for a good first impression!\n#{e.inspect}")
 				else
 					puts "DayPlanner: Task caused error on first performance. There's no second chance for a good first impression!\n#{e.inspect}"

@@ -34,7 +34,7 @@ Obviously you only get those cute little time methods in Rails; otherwise, pass 
 
 The tasks in the schedule will each be performed on startup and then thereafter according to their stated intervals.
 
-I'm not doing a whole damn ton to protect you from tasks that throw errors, but there is a begin/rescue/end up in there at some point. I definitely am not protecting you from a process that just won't end or anything like that. Given that each task is run in its own thread, you have some faint assurance that they are occuring at whatever interval you specify plus a very small amount of overhead.
+I'm not doing a whole damn ton to protect you from tasks that throw errors, but there is a begin/rescue/end up in there at some point. I definitely am not protecting you from a process that just won't end or anything like that. Remember that your interval is really the minimum possible time between instances of the task being performed, as it does not spawn a new thread for that purpose.
 
 By default, DayPlanner checks for tasks to be performed once per minute. You have the power to change this:
 
