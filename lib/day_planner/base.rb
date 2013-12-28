@@ -89,4 +89,14 @@ end
 
 DayPlanner.activate
 
-require Rails.root.join('config', 'day_planner_tasks') if defined?(Rails)
+if defined?(Rails)
+	module DayPlanner
+		class Railtie < Rails::Railtie
+			initializer "Include DayPlanner" do
+				ActiveSupport.on_load(:action_controller) do
+					include DayPlanner
+				end
+			end
+		end
+	end
+end
