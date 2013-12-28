@@ -15,7 +15,7 @@ module DayPlanner
 
 		def cancel(task)
 			task = find_task(task) if task.is_a?(String)
-			raise ArgumentError, "DayPlanner couldn't find this task" if task.nil?
+			raise ArgumentError, "DayPlanner couldn't find this task" if task.nil? || !task.is_a?(DayPlanner::Task)
 			task.destroy
 		end
 				
