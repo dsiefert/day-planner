@@ -46,6 +46,19 @@ Note that if you try to schedule a task with an interval shorter than DayPlanner
 
 Specify these things in config/day_planner_tasks.rb. Note that you probably won't manage to precede that first minute-long wait. I may default to a shorter value in the future. I dunno.
 
+You can name a task thusly:
+    DayPlanner.schedule(every: 2.minutes, name: "my task") do
+    	MyClass.my_class_method
+    end
+
+If you do, you can find the task later:
+    DayPlanner.find_task("my task")
+
+To cancel a task, you can either call the task's "destroy" method, or call a class method on DayPlanner:
+    DayPlanner.cancel(task)
+
+You can either pass a name, if you named the task, or the task object.
+
 ## Contributing
 
 1. Fork it
