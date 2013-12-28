@@ -22,6 +22,7 @@ module DayPlanner
 		def activate
 			@@master.kill if defined?(@@master)
 
+			Rails.logger.info("DayPlanner activated.")
 			@@master = Thread.new do
 				while true
 					check_schedule
@@ -59,8 +60,7 @@ module DayPlanner
 					begin
 						t.perform
 					rescue => e
-						puts "DayPlanner: Scheduled task threw an error! Behave yourselves!"
-						puts e.inspect
+						Rails.logger.error("DayPlanner: Scheduled task threw an error! Behave yourselves!\n#{e.inspect}")
 					end
 				end
 			end
@@ -106,12 +106,15 @@ module DayPlanner
 			@task = block
 
 			DayPlanner.tasks.push(self)
+			log_info = "DayPlanner: New task added"
+			log_info += ": '#{@name}'" unless @name.nil?
+			log_info += " with an execution interval of #{@interval.to_i} seconds."
+			Rails.logger.info(log_info)
 
 			begin
 				perform
 			rescue => e
-				puts "DayPlanner: Task caused error on first performance. There's no second chance for a good first impression!"
-				puts e.inspect
+				Rails.logger.error("DayPlanner: Task caused error on first performance. There's no second chance for a good first impression!\n#{e.inspect}")
 			end
 		end
 	end
