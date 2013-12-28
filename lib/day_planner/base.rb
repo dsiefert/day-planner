@@ -27,7 +27,7 @@ module DayPlanner
 			else
 				puts "DayPlanner activated."
 			end
-			
+
 			@@master = Thread.new do
 				while true
 					check_schedule
@@ -69,6 +69,7 @@ module DayPlanner
 							Rails.logger.error("DayPlanner: Scheduled task threw an error! Behave yourselves!\n#{e.inspect}")
 						else
 							puts "DayPlanner: Scheduled task threw an error! Behave yourselves!\n#{e.inspect}"
+						end
 					end
 				end
 			end
