@@ -98,7 +98,7 @@ module DayPlanner
 		attr_reader :last_executed, :interval
 
 		def perform
-			if @environment.nil? || (defined?(Rails) && defined?(Rails.environment) && Rails.environment == @environment)
+			if @environment.nil? || (defined?(Rails) && defined?(Rails.env) && Rails.env == @environment)
 				@last_executed = Time.now
 
 				@task.call
