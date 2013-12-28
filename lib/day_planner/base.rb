@@ -117,6 +117,6 @@ module DayPlanner
 	end
 end
 
-require File.expand_path('config/day_planner_tasks') if defined?(Rails)
+require File.expand_path('config/scheduled_tasks') if defined?(Rails)
 
 DayPlanner.activate
