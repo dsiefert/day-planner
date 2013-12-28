@@ -1,5 +1,6 @@
 module DayPlanner
 	@@tasks = []
+	@@named_tasks = {}
 
 	class << self
 		def tasks
@@ -12,6 +13,12 @@ module DayPlanner
 			Task.new(options, &block)
 		end
 
+		def cancel(task)
+			task = find_task(task) if task.is_a?(String)
+			raise ArgumentError, "DayPlanner couldn't find this task" if task.nil?
+			task.destroy
+		end
+				
 		def activate
 			@@master.kill if defined?(@@master)
 
@@ -29,6 +36,20 @@ module DayPlanner
 
 		def interval=(value)
 			@@interval = value
+		end
+
+		def find_task(name)
+			@@named_tasks[name]
+		end
+
+		def register_task_name(name, task)
+			raise ArgumentError unless task.is_a?(DayPlanner::Task)
+			raise ArgumentError unless @@named_tasks[name].nil?
+			@@named_tasks[name] = task
+		end
+
+		def delete_task_name(name)
+			@@named_tasks.delete(name)
 		end
 
 	private
@@ -59,12 +80,27 @@ module DayPlanner
 			end
 		end
 
+		def destroy
+			DayPlanner.tasks.delete(self)
+			if @name
+				DayPlanner.delete_task_name(@name)
+			end
+		end
+
 		def initialize(options, &block)
 			if options[:every]
 				@interval = options[:every]
 				raise ArgumentError, "DayPlanner: Task interval is less than scheduler interval. Task not scheduled." if @interval < DayPlanner.interval
 			else
 				raise ArgumentError, "DayPlanner: Scheduling tasks at anything other than simple intervals using 'every' is still not implemented, not even a little bit."
+			end
+
+			if options[:name]
+				name = options.delete(:name)
+				if !DayPlanner.find_task(name)
+					@name = name
+					DayPlanner.register_task_name(name, self)
+				end
 			end
 
 			@task = block
