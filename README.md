@@ -48,22 +48,35 @@ Note that if you try to schedule a task with an interval shorter than DayPlanner
 
 Specify your preferred interval (and whatever other goodies may be waiting in the pipeline) in config/day_planner_tasks.rb. Note that you probably won't manage to precede that first minute-long wait. I may default to a shorter value in the future. I dunno. Don't pressure me.
 
-### Non-Rails uses
+### Other options
 
-I sort of think it might work without Rails, keeping in mind the various aforementioned caveats? I'm not really sure. If it totally doesn't, I'd appreciate feedback.
+#### name
 
 You can name a task thusly:
+
     DayPlanner.schedule(every: 2.minutes, name: "my task") do
-    	MyClass.my_class_method
+        MyClass.my_class_method
     end
 
 If you do, you can find the task later:
     DayPlanner.find_task("my task")
 
+#### environment
+
+If you're using Rails, you can include environment in your options hash, setting the value to the Rails environment in which you'd like the task executed. For example:
+
+    DayPlanner.schedule(every: 1.hour, name: "occasional task", environment: "production") do
+        # I run every hour, but only if you're using Rails and in production.
+    end
+
 To cancel a task, you can either call the task's "destroy" method, or call a class method on DayPlanner:
     DayPlanner.cancel(task)
 
 You can either pass a name, if you named the task, or the task object.
+
+### Non-Rails uses
+
+I sort of think it might work without Rails, keeping in mind the various aforementioned caveats? I'm not really sure. If it totally doesn't, I'd appreciate feedback.
 
 ## Contributing
 
