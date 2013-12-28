@@ -20,7 +20,7 @@ Or install it yourself as:
 
     $ gem install day_planner
 
-If you're using Rails, it'll expect to find a file listing scheduled tasks in 'config/day_planner_tasks.rb'. If you're not using Rails, do whatever makes you happy. Stick some scheduled tasks somewhere and make sure it's somewhere that runs when your application starts.
+If you're using Rails, it'll expect to find a file listing scheduled tasks in 'config/scheduled_tasks.rb'. If you're not using Rails, do whatever makes you happy. Stick some scheduled tasks somewhere and make sure it's somewhere that runs when your application starts.
 
 ## Usage
 
