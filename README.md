@@ -24,13 +24,29 @@ If you're using Rails, it'll expect to find a file listing scheduled tasks in 'c
 
 ## Usage
 
-Here's an example of a scheduled task, living in (app)/config/scheduled_tasks.rb (this is the required/automatic location of the schedule file if you're using Rails):
+### Rails
+
+Create a file called config/scheduled_tasks.rb. Put tasks in it like this:
 
     DayPlanner.schedule(every: 2.minutes) do
     	MyClass.my_class_method
     end
 
-Obviously you only get those cute little time methods in Rails; otherwise, pass in an integer number of seconds. More sophisticated ways of scheduling tasks are intended in the future, but for now you'll just have to cope. If you don't specify an interval with 'every', it'll happen once and never again.
+This file will be read in and its tasks will be added to the schedule automatically.
+
+### If you're not using Rails
+
+I don't really know if it'll work. I haven't tried.
+
+You will have to create a scheduled tasks file, somewhere. Use the same format, but obviously you won't have those cute little Rails-y time methods. You'll want to include this at the bottom:
+
+    DayPlanner.activate
+
+It's only activated automatically in Rails.
+
+I have not tested it outside of Rails and it may not work at all but ideally I'd prefer that it did. If you can give me feedback, I'd be much obliged.
+
+### Either way
 
 The tasks in the schedule will each be performed on startup and then thereafter according to their stated intervals.
 
@@ -44,7 +60,7 @@ Or, like
 
     DayPlanner.interval = 5
 
-Note that if you try to schedule a task with an interval shorter than DayPlanner's interval, it'll complain and fail. If you shorten DayPlanner's interval to less than that of one of its tasks, it'll complain but not fail. It obviously will only run at scheduler thread's intervals. Use your best judgment.
+Note that if you try to schedule a task with an interval shorter than DayPlanner's interval, it'll complain and fail. If you shorten DayPlanner's interval to less than that of one of its tasks, it'll complain but not fail. The task obviously will only run at scheduler thread's intervals. Use your best judgment.
 
 Specify your preferred interval (and whatever other goodies may be waiting in the pipeline) in config/day_planner_tasks.rb. Note that you probably won't manage to precede that first minute-long wait. I may default to a shorter value in the future. I dunno. Don't pressure me.
 
@@ -73,10 +89,6 @@ To cancel a task, you can either call the task's "destroy" method, or call a cla
     DayPlanner.cancel(task)
 
 You can either pass a name, if you named the task, or the task object.
-
-### Non-Rails uses
-
-I sort of think it might work without Rails, keeping in mind the various aforementioned caveats? I'm not really sure. If it totally doesn't, I'd appreciate feedback.
 
 ## Contributing
 

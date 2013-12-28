@@ -1,6 +1,14 @@
 module DayPlanner
 	@@tasks = []
 	@@named_tasks = {}
+	@@status = "stopped"
+
+	class Railtie < Rails::Railtie
+		config.after_initialize do
+			require File.expand_path('config/scheduled_tasks')
+			DayPlanner.activate
+		end
+	end
 
 	class << self
 		def tasks
@@ -18,9 +26,19 @@ module DayPlanner
 			raise ArgumentError, "DayPlanner couldn't find this task" if task.nil? || !task.is_a?(DayPlanner::Task)
 			task.destroy
 		end
+
+		def status
+			@@status
+		end
+
+		def deactivate
+			@@master.kill if defined?(@@master)
+			@@status = "stopped"
+		end
 				
 		def activate
 			@@master.kill if defined?(@@master)
+			@@status = "running"
 
 			if defined?(Rails) && Rails.logger
 				Rails.logger.info("DayPlanner activated.")
@@ -153,7 +171,3 @@ module DayPlanner
 		end
 	end
 end
-
-require File.expand_path('config/scheduled_tasks') if defined?(Rails)
-
-DayPlanner.activate
