@@ -14,11 +14,7 @@ Add this line to your application's Gemfile:
 
 And then execute:
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install day_planner
+    $ bundle install
 
 If you're using Rails, it'll expect to find a file listing scheduled tasks in 'config/scheduled_tasks.rb'. If you're not using Rails, do whatever makes you happy. Stick some scheduled tasks somewhere and make sure it's somewhere that runs when your application starts.
 
@@ -50,19 +46,7 @@ I have not tested it outside of Rails and it may not work at all but ideally I'd
 
 The tasks in the schedule will each be performed on startup and then thereafter according to their stated intervals.
 
-I'm not doing a whole damn ton to protect you from tasks that throw errors, but there is a begin/rescue/end up in there at some point. I definitely am not protecting you from a process that just won't end or anything like that. Remember that your interval is really the minimum possible time between instances of the task being performed, as it does not spawn a new thread for that purpose.
-
-By default, DayPlanner checks for tasks to be performed once per minute. You have the power to change this:
-
-    DayPlanner.interval = 5.seconds
-
-Or, like
-
-    DayPlanner.interval = 5
-
-Note that if you try to schedule a task with an interval shorter than DayPlanner's interval, it'll complain and fail. If you shorten DayPlanner's interval to less than that of one of its tasks, it'll complain but not fail. The task obviously will only run at scheduler thread's intervals. Use your best judgment.
-
-Specify your preferred interval (and whatever other goodies may be waiting in the pipeline) in config/day_planner_tasks.rb. Note that you probably won't manage to precede that first minute-long wait. I may default to a shorter value in the future. I dunno. Don't pressure me.
+I'm not doing a whole damn ton to protect you from tasks that throw errors, but there is a begin/rescue/end up in there at some point. I definitely am not protecting you from a process that just won't end or anything like that. Remember that your interval is really the minimum possible time between instances of the task being performed, as it does not spawn a new thread for each task. (That seemed to cause problems with Heroku.)
 
 ### Other options
 
@@ -85,10 +69,31 @@ If you're using Rails, you can include environment in your options hash, setting
         # I run every hour, but only if you're using Rails and in production.
     end
 
+### Managing DayPlanner and tasks
+
+You can activate or deactivate DayPlanner with those respective methods. You can also check whether it's running with DayPlanner.status.
+
 To cancel a task, you can either call the task's "destroy" method, or call a class method on DayPlanner:
+
     DayPlanner.cancel(task)
 
 You can either pass a name, if you named the task, or the task object.
+
+#### DayPlanner.interval
+
+By default, DayPlanner checks for tasks to be performed once per minute. You have the power to change this:
+
+    DayPlanner.interval = 5.seconds
+
+Or, like
+
+    DayPlanner.interval = 5
+
+Since tasks are not run in separate threads (this seemed to be giving me database connection issues on Heroku), remember that the interval is basically a minimum possible period before it's performed again -- if a task takes time to run, keep that in mind (or spin off a new thread yourself in the task).
+
+Note that if you try to schedule a task with an interval shorter than DayPlanner's interval, it'll complain and fail. If you shorten DayPlanner's interval to less than that of one of its tasks, it'll complain but not fail. The task obviously will only run at scheduler thread's intervals. Use your best judgment.
+
+Specify your preferred interval (and whatever other goodies may be waiting in the pipeline) in config/day_planner_tasks.rb. As long as you set your interval before DayPlanner is activated, you won't have to wait for it to cycle through an interval. If you alter this value while DayPlanner is already running, it won't take effect until the current interval ends.
 
 ## Contributing
 
