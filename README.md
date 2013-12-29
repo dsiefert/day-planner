@@ -4,7 +4,7 @@ Day Planner is a simple tool to manage in-process execution of scheduled tasks. 
 
 I wrote this because I needed a simple, lightweight tool to schedule small, light tasks on an application running on Heroku, without the extra cost of a dedicated clock process to handle it, but executing more frequently than Heroku's free scheduler permits.
 
-Schedule management is in a thread of its own; each scheduled task is run in a thread as well, meaning that lots of long-running tasks could result in lots of threads. Ruby 2.0's handling of threading is improved over the 1.9 branch, so I require that as a minimum, but I obviously can't guarantee that you won't encounter situations in which poorly behaved tasks block your application's main thread. If you want assurances against that, use any of the other tools (did I mention [Clockwork](http://rubygems.org/gems/clockwork)?)
+Schedule management is in a thread of its own; scheduled tasks are run in the same thread (I was spawning separate threads for them, but it seemed to be causing issues with database utilization on Heroku). Ruby 2.0's handling of threading is improved over the 1.9 branch, so I require that as a minimum, but I obviously can't guarantee that you won't encounter situations in which poorly behaved tasks block your application's main thread. If you want assurances against that, use any of the other tools (did I mention [Clockwork](http://rubygems.org/gems/clockwork)?)
 
 ## Installation
 
