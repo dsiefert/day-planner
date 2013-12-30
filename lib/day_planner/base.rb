@@ -4,7 +4,7 @@ module DayPlanner
 	@@status = "stopped"
 
 	class Railtie < Rails::Railtie
-		config.after_initialize do
+		initializer "day_planner.activate", after: :finisher_hook do
 			require File.expand_path('config/scheduled_tasks')
 			DayPlanner.activate
 		end
