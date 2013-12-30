@@ -4,7 +4,7 @@ module DayPlanner
 	@@status = "stopped"
 
 	class Railtie < Rails::Railtie
-		unless $rails_rake_task
+		unless $0 =~ /rake/
 			initializer "day_planner.activate", after: :finisher_hook do
 				require File.expand_path('config/scheduled_tasks')
 				DayPlanner.activate
