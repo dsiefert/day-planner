@@ -24,7 +24,7 @@ module DayPlanner
 		end
 
 		def cancel(task)
-			task = find_task(task) if task.is_a?(String)
+			task = find_task(task) if task.is_a?(String) || task.is_a?(Symbol)
 			raise ArgumentError, "DayPlanner couldn't find this task" if task.nil? || !task.is_a?(DayPlanner::Task)
 			task.destroy
 		end
@@ -65,13 +65,13 @@ module DayPlanner
 		end
 
 		def find_task(name)
-			@@named_tasks[name]
+			@@named_tasks[name.to_s]
 		end
 
 		def register_task_name(name, task)
 			raise ArgumentError unless task.is_a?(DayPlanner::Task)
-			raise ArgumentError unless @@named_tasks[name].nil?
-			@@named_tasks[name] = task
+			raise ArgumentError unless @@named_tasks[name.to_s].nil?
+			@@named_tasks[name.to_s] = task
 		end
 
 		def delete_task_name(name)
@@ -141,7 +141,7 @@ module DayPlanner
 			if options[:name]
 				name = options.delete(:name)
 				if !DayPlanner.find_task(name)
-					@name = name
+					@name = name.to_s
 					DayPlanner.register_task_name(name, self)
 				end
 			end
