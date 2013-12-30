@@ -97,7 +97,7 @@ module DayPlanner
 	end
 
 	class Task
-		attr_reader :last_executed, :interval
+		attr_reader :name, :last_executed, :interval
 
 		def perform
 			if @environment.nil? || (defined?(Rails) && defined?(Rails.env) && Rails.env == @environment)
