@@ -6,7 +6,7 @@ module DayPlanner
 		isolate_namespace DayPlanner
 
 		unless $0 =~ /rake/ || !defined?(Rails.env) || !Rails.env.production?
-			unless defined?(::Rails::Console) || ENV['EXECUTE_SCHEDULED_TASKS_IN_CONSOLE']
+			unless !defined?(::Rails::Console) || ENV['EXECUTE_SCHEDULED_TASKS_IN_CONSOLE']
 				initializer "day_planner.activate", after: :finisher_hook do
 					puts "DayPlanner starting up"
 					DayPlanner.clear_tasks
