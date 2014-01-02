@@ -3,7 +3,7 @@ module DayPlanner
 	MINOR = 1
 	TINY  = 0
 	PRE   = "pre13"
-	BUILD = 1
+	BUILD = 2
 
   VERSION = [MAJOR, MINOR, TINY, PRE, BUILD].compact.join(".")
 end
