@@ -1,59 +1,26 @@
-module DayPlanner
-	@@tasks = []
-	@@named_tasks = {}
-	@@status = "stopped"
+require 'day_planner/engine'
 
-	class Railtie < Rails::Railtie
-		unless $0 =~ /rake/
-			initializer "day_planner.activate", after: :finisher_hook do
-				require File.expand_path('config/scheduled_tasks')
-				DayPlanner.activate
-			end
-		end
-	end
+module DayPlanner
+	@@status = "stopped"
+	@@tasks = []
 
 	class << self
 		def tasks
 			@@tasks
 		end
 
-		def schedule(options, &block)
-			raise ArgumentError unless options.is_a?(Hash)
-
-			Task.new(options, &block)
-		end
-
-		def cancel(task)
-			task = find_task(task) if task.is_a?(String) || task.is_a?(Symbol)
-			raise ArgumentError, "DayPlanner couldn't find this task" if task.nil? || !task.is_a?(DayPlanner::Task)
-			task.destroy
+		def task(task)
+			if task.is_a?(Integer)
+				@@tasks.select{ |t| t.id == task }.first
+			elsif task.is_a?(String)
+				@@task.select{ |t| t.name == task }.first
+			elsif task.is_a?(DayPlanner::Task)
+				@@task.select{ |t| t.id == task.id }.first
+			end
 		end
 
 		def status
 			@@status
-		end
-
-		def deactivate
-			@@master.kill if defined?(@@master)
-			@@status = "stopped"
-		end
-				
-		def activate
-			@@master.kill if defined?(@@master)
-			@@status = "running"
-
-			if defined?(Rails) && Rails.logger
-				Rails.logger.info("DayPlanner activated.")
-			else
-				puts "DayPlanner activated."
-			end
-
-			@@master = Thread.new do
-				while true
-					check_schedule
-					sleep(interval)
-				end
-			end
 		end
 
 		def interval
@@ -64,111 +31,96 @@ module DayPlanner
 			@@interval = value
 		end
 
-		def find_task(name)
-			@@named_tasks[name.to_s]
+		def clear_tasks
+			@@tasks = []
+			ActiveRecord::Base.connection.execute("TRUNCATE #{DayPlanner::Task.table_name}")
 		end
 
-		def register_task_name(name, task)
-			raise ArgumentError unless task.is_a?(DayPlanner::Task)
-			raise ArgumentError unless @@named_tasks[name.to_s].nil?
-			@@named_tasks[name.to_s] = task
+		def schedule(options, &block)
+			raise ArgumentError, "Failed to pass an options hash" unless options.is_a?(Hash)
+
+			task = DayPlanner::Task.schedule(options)
+
+			if !task.id.nil?
+				task.block = block
+				@@tasks.push(task)
+			else
+				raise ArgumentError, "Task creation failed. If you specified a name, was it unique?"
+			end
+
+			task
 		end
 
-		def delete_task_name(name)
-			@@named_tasks.delete(name)
+		def cancel(task)
+			task = DayPlanner::Task.find_by_name(task) if task.is_a?(String) || task.is_a?(Symbol)
+			task = DayPlanner::Task.find(task) if task.is_a?(Integer)
+
+			raise ArgumentError, "DayPlanner couldn't find this task" if task.nil? || !task.is_a?(DayPlanner::Task)
+
+			@@tasks.select!{ |t| t.id != task.id }
+
+			task.destroy
+		end
+
+		def deactivate
+			@@master.kill if defined?(@@master)
+			@@status = "stopped"
+			@@tasks = []
+
+			clear_tasks
+
+			true
+		end
+				
+		def activate
+			@@master.kill if defined?(@@master)
+			@@status = "running"
+
+			if defined?(Rails) && Rails.logger
+				Rails.logger.info("DayPlanner activated at #{Time.now.inspect}.")
+			else
+				puts "DayPlanner activated at #{Time.now.inspect}."
+			end
+
+			@@master = Thread.new do
+				begin
+					while true
+						check_schedule
+						sleep(interval)
+					end
+				ensure
+					Rails.logger.flush
+				end
+			end
 		end
 
 	private
 		def check_schedule
-			tasks.each do |t|
-				if Time.now > t.last_executed + t.interval
-					begin
-						t.perform
-					rescue => e
-						if defined?(Rails) && Rails.logger
-							Rails.logger.error("DayPlanner: Scheduled task threw an error! Behave yourselves!\n#{e.inspect}")
-						else
-							puts "DayPlanner: Scheduled task threw an error! Behave yourselves!\n#{e.inspect}"
+			begin
+				DayPlanner.tasks.each_with_index do |t, idx|
+					time = Time.now
+					task = DayPlanner::Task.find(t.id)
+
+					if task.nil?
+						@@tasks.select!{ |item| item.id != t.id }
+					else
+						if task.last_execution.nil? || (time > task.next_execution && time > task.last_execution + (task.interval / 2))
+							task.last_execution = time
+
+							if !task.next_execution.nil?
+								task.next_execution += task.interval #move it up by interval, regardless of if it's getting executed late
+							else
+								task.next_execution = time + task.interval
+							end
+
+							task.save!
+
+							t.block.call
 						end
 					end
 				end
-			end
-		end
-	end
-
-	class Task
-		attr_reader :name, :last_executed, :interval
-
-		def perform
-			if @environment.nil? || (defined?(Rails) && defined?(Rails.env) && Rails.env == @environment)
-				@last_executed = Time.now
-
-				@task.call
-			else
-				log_info = "DayPlanner: "
-
-				if @name
-					log_info += "Skipping task '#{@name}'"
-				else
-					log_info += "Skipping a task"
-				end
-
-				log_info += " because it's set for environment '#{@environment}'."
-
-				if defined?(Rails) && Rails.logger
-					Rails.logger.info(log_info)
-				else
-					puts log_info
-				end
-			end
-		end
-
-		def destroy
-			DayPlanner.tasks.delete(self)
-			if @name
-				DayPlanner.delete_task_name(@name)
-			end
-		end
-
-		def initialize(options, &block)
-			if options[:every]
-				@interval = options[:every]
-				raise ArgumentError, "DayPlanner: Task interval is less than scheduler interval. Task not scheduled." if @interval < DayPlanner.interval
-			else
-				raise ArgumentError, "DayPlanner: Scheduling tasks at anything other than simple intervals using 'every' is still not implemented, not even a little bit."
-			end
-
-			if options[:name]
-				name = options.delete(:name)
-				if !DayPlanner.find_task(name)
-					@name = name.to_s
-					DayPlanner.register_task_name(name, self)
-				end
-			end
-
-			@environment = options.delete(:environment) if options[:environment]
-
-			@task = block
-
-			DayPlanner.tasks.push(self)
-			log_info = "DayPlanner: New task added"
-			log_info += ": '#{@name}'" unless @name.nil?
-			log_info += " with an execution interval of #{@interval.to_i} seconds."
-
-			if defined?(Rails) && Rails.logger
-				Rails.logger.info(log_info)
-			else
-				puts log_info
-			end
-
-			begin
-				perform
 			rescue => e
-				if defined?(Rails) && Rails.logger
-					Rails.logger.error("DayPlanner: Task caused error on first performance. There's no second chance for a good first impression!\n#{e.inspect}")
-				else
-					puts "DayPlanner: Task caused error on first performance. There's no second chance for a good first impression!\n#{e.inspect}"
-				end
+				Rails.logger.error("DayPlanner: task threw error:\n#{e.inspect}")
 			end
 		end
 	end
