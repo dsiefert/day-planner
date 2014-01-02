@@ -33,7 +33,7 @@ module DayPlanner
 
 		def clear_tasks
 			@@tasks = []
-			ActiveRecord::Base.connection.execute("TRUNCATE #{DayPlanner::Task.table_name}")
+			ActiveRecord::Base.connection.execute("TRUNCATE TABLE #{DayPlanner::Task.table_name}")
 		end
 
 		def schedule(options, &block)
