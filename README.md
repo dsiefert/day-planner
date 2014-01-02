@@ -71,7 +71,7 @@ Since tasks are not run in separate threads (this seemed to be giving me databas
 
 Note that if you try to schedule a task with an interval shorter than DayPlanner's interval, it'll complain and fail. If you shorten DayPlanner's interval to less than that of one of its tasks, it'll complain but not fail. The task obviously will only run at scheduler thread's intervals. Use your best judgment.
 
-Specify your preferred interval (and whatever other settings which may be implemented one day) in config/day_planner_tasks.rb. As long as you set your interval before DayPlanner is activated, you won't have to wait for it to cycle through an interval to change the setting. If you alter this value while DayPlanner is already running, it won't take effect until the current interval ends.
+Specify your preferred interval (and whatever other settings which may be implemented one day) in config/scheduled_tasks.rb. As long as you set your interval before DayPlanner is activated, you won't have to wait for it to cycle through an interval to change the setting. If you alter this value while DayPlanner is already running, it won't take effect until the current interval ends.
 
 ## Contributing
 
