@@ -34,7 +34,7 @@ module DayPlanner
 
 		def clear_tasks
 			@@tasks = []
-			ActiveRecord::Base.connection.execute("DELETE FROM #{DayPlanner::Task.table_name} WHERE 1")
+			ActiveRecord::Base.connection.execute("DELETE FROM #{DayPlanner::Task.table_name} WHERE true;")
 			DayPlanner::Task.reset_table_sequence
 		end
 
