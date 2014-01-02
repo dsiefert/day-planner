@@ -1,3 +1,4 @@
+require 'active_record/reset_table_sequence'
 require 'day_planner/engine'
 
 module DayPlanner
@@ -33,7 +34,8 @@ module DayPlanner
 
 		def clear_tasks
 			@@tasks = []
-			ActiveRecord::Base.connection.execute("DELETE FROM #{DayPlanner::Task.table_name}")
+			ActiveRecord::Base.connection.execute("DELETE FROM #{DayPlanner::Task.table_name} WHERE 1")
+			DayPlanner::Task.reset_table_sequence
 		end
 
 		def schedule(options, &block)
