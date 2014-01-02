@@ -5,7 +5,7 @@ module DayPlanner
 	class Railtie < Rails::Engine
 		isolate_namespace DayPlanner
 
-		unless $0 =~ /rake/ || defined?(::Rails::Console) 
+		unless $0 =~ /rake/ || defined?(::Rails::Console) || !defined?(Rails.env) || !Rails.env.production?
 			initializer "day_planner.activate", after: :finisher_hook do
 				puts "DayPlanner starting up"
 				DayPlanner.clear_tasks
