@@ -121,7 +121,7 @@ module DayPlanner
 
 							task.save!
 
-							t.log
+							t.log(task.last_execution, time)
 							t.block.call
 						end
 					end

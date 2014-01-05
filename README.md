@@ -73,6 +73,15 @@ Note that if you try to schedule a task with an interval shorter than DayPlanner
 
 Specify your preferred interval (and whatever other settings which may be implemented one day) in config/scheduled_tasks.rb. As long as you set your interval before DayPlanner is activated, you won't have to wait for it to cycle through an interval to change the setting. If you alter this value while DayPlanner is already running, it won't take effect until the current interval ends.
 
+### Logging
+
+If you'd like to log your tasks, go for it. Add logging thusly:
+
+    rails generate day_planner:log
+    rake db:migrate
+
+This just adds an extra table entitled 'day_planner_log'. As long as the table's there, it'll log each task execution, as well as every instance in which DayPlanner activates. Clear the log as the spirit takes you. Do what you do best.
+
 ## Contributing
 
 1. Fork it

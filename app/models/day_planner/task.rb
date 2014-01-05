@@ -21,9 +21,14 @@ module DayPlanner
 			task = DayPlanner::Task.create(fields)
 		end
 
-		def log
+		def log(last, now)
 			if ActiveRecord::Base.connection.table_exists?('day_planner_log')
-				DayPlanner::Log.create(name: name, interval: interval, datetime: Time.now)
+				if now < last + interval
+					early = last + interval - now
+				else
+					early = nil
+				end
+				DayPlanner::Log.create(name: name, interval: interval, datetime: Time.now, early: early)
 			end
 		end
 
