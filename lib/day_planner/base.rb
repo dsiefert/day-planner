@@ -34,7 +34,7 @@ module DayPlanner
 
 		def clear_tasks
 			@@tasks = []
-			ActiveRecord::Base.connection.execute("DELETE FROM #{DayPlanner::Task.table_name} WHERE true;")
+			ActiveRecord::Base.connection.execute("DELETE FROM #{DayPlanner::Task.table_name} WHERE 1;")
 			DayPlanner::Task.reset_table_sequence
 		end
 
@@ -106,7 +106,7 @@ module DayPlanner
 					if task.nil?
 						@@tasks.select!{ |item| item.id != t.id }
 					else
-						if task.last_execution.nil? || (time > task.next_execution && time > task.last_execution + (task.interval / 2))
+						if task.last_execution.nil? || task.next_execution.nil? || (time > task.next_execution && time > task.last_execution + (task.interval / 2))
 							task.last_execution = time
 
 							if !task.next_execution.nil?
@@ -117,6 +117,7 @@ module DayPlanner
 
 							task.save!
 
+							t.log
 							t.block.call
 						end
 					end

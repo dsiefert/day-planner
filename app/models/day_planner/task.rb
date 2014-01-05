@@ -16,8 +16,17 @@ module DayPlanner
 			fields = {}
 			fields[:name] = options.delete(:name) if options[:name]
 			fields[:interval] = options.delete(:every).to_i if options[:every]
+			fields[:last_execution] = Time.parse("1/1/1")
 
 			task = DayPlanner::Task.create(fields)
+		end
+
+		def log
+			if ActiveRecord::Base.connection.table_exists?('day_planner_log')
+				DayPlanner::Log.create(name: name, interval: interval, datetime: Time.now)
+			else
+				puts "I refuse to log!"
+			end
 		end
 
 		def check_name
