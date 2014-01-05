@@ -24,8 +24,6 @@ module DayPlanner
 		def log
 			if ActiveRecord::Base.connection.table_exists?('day_planner_log')
 				DayPlanner::Log.create(name: name, interval: interval, datetime: Time.now)
-			else
-				puts "I refuse to log!"
 			end
 		end
 

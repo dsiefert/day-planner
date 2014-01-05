@@ -84,6 +84,10 @@ module DayPlanner
 				puts "DayPlanner activated at #{Time.now.inspect}."
 			end
 
+			if ActiveRecord::Base.connection.table_exists?('day_planner_log')
+				DayPlanner::Log.create(name: "Activating DayPlanner", interval: @@interval, datetime: Time.now)
+			end
+
 			@@master = Thread.new do
 				begin
 					while true
