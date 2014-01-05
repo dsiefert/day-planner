@@ -1,6 +1,6 @@
 class CreateDayPlannerLog < ActiveRecord::Migration
 	def up
-		drop table :day_planner_log
+		drop_table :day_planner_log
 
 		create_table :day_planner_log do |t|
 			t.string   :name
