@@ -6,7 +6,7 @@ class CreateDayPlannerLog < ActiveRecord::Migration
 			t.string   :name
 			t.integer  :interval
 			t.datetime :datetime
-			t.datetime :early
+			t.decimal  :deviation, precision: 6
 		end
 	end
 
