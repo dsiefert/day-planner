@@ -25,6 +25,8 @@ module DayPlanner
 			if ActiveRecord::Base.connection.table_exists?('day_planner_log')
 				if !last.nil? || now < last + interval
 					early = last + interval - now
+				else
+					early = last + interval - now
 				end
 				DayPlanner::Log.create(name: name, interval: interval, datetime: Time.now, early: early)
 			end
