@@ -6,7 +6,7 @@ class CreateDayPlannerLog < ActiveRecord::Migration
 			t.string   :name
 			t.integer  :interval
 			t.datetime :datetime
-			t.early    :datetime
+			t.datetime :early
 		end
 	end
 
