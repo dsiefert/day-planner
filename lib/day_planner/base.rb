@@ -111,6 +111,7 @@ module DayPlanner
 						@@tasks.select!{ |item| item.id != t.id }
 					else
 						if task.last_execution.nil? || task.next_execution.nil? || (time > task.next_execution && time > task.last_execution + (task.interval / 2))
+							last = task.last_execution
 							task.last_execution = time
 
 							if !task.next_execution.nil?
@@ -121,7 +122,7 @@ module DayPlanner
 
 							task.save!
 
-							t.log(task.last_execution, time)
+							t.log(last, time)
 							t.block.call
 						end
 					end

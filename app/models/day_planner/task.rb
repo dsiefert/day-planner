@@ -23,7 +23,7 @@ module DayPlanner
 
 		def log(last, now)
 			if ActiveRecord::Base.connection.table_exists?('day_planner_log')
-				early = last + interval - now
+				early = last + interval.seconds - now
 				DayPlanner::Log.create(name: name, interval: interval, datetime: Time.now, early: early)
 			end
 		end
