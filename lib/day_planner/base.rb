@@ -38,6 +38,11 @@ module DayPlanner
 			DayPlanner::Task.reset_table_sequence
 		end
 
+		def clear_log
+			ActiveRecord::Base.connection.execute("DELETE FROM #{DayPlanner::Log.table_name} WHERE true;")
+			DayPlanner::Log.reset_table_sequence
+		end
+
 		def schedule(options, &block)
 			raise ArgumentError, "Failed to pass an options hash" unless options.is_a?(Hash)
 

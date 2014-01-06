@@ -16,7 +16,6 @@ module DayPlanner
 			fields = {}
 			fields[:name] = options.delete(:name) if options[:name]
 			fields[:interval] = options.delete(:every).to_i if options[:every]
-#			fields[:last_execution] = Time.parse("1/1/1")
 
 			task = DayPlanner::Task.create(fields)
 		end

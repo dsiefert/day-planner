@@ -8,13 +8,6 @@ This is basically a gimme as long as we're already recording stuff in a database
 * Do delete any unfamiliar tasks (i.e. anything in day_planner_tasks that isn't listed in our schedule file)
 * Don't reinitialize persistent events, just keep them on schedule. This helps especially if e.g. dealing with a pricy API -- why pull more often than needed?
 
-### Log each tasks's history ###
-HIGH PRIORITY: I want to be able to monitor the elaborate new scheduling algorithm appropriately. This needs to be optional, but it would be nice to have the ability to monitor at least how well the task adheres to the timeline.
-* Optional generator task to create a table of task history whatnot? Check for it on initialize and then start writing to it if it's there.
-* Read history, add method to calculate number of times task performed over timeframe.
-* ActiveRecord::Base.connection.table_exists?('day_planner_task_log') welp then check for it
-* new rails generator to create that migration
-
 ### Attempt some degree of control with multi-process instances ###
 Not sure exactly how to do this.
 * Store a record of the scheduler's execution status in a database? Then use that to avoid it being unnecessarily run in multiple threads?

@@ -80,7 +80,13 @@ If you'd like to log your tasks, go for it. Add logging thusly:
     rails generate day_planner:log
     rake db:migrate
 
-This just adds an extra table entitled 'day_planner_log'. As long as the table's there, it'll log each task execution, as well as every instance in which DayPlanner activates. Clear the log as the spirit takes you. Do what you do best.
+This just adds an extra table entitled 'day_planner_log'. As long as the table's there, it'll log each task execution, as well as every instance in which DayPlanner activates.
+
+It may be worth considering clearing the log on every launch. You can add such instruction to your schedule file:
+
+    DayPlanner.clear_log
+
+Clear the log as the spirit takes you. Do what you do best.
 
 ## Contributing
 
