@@ -28,7 +28,12 @@ module DayPlanner
 				else
 					deviation = 0
 				end
-				cumulative_deviation = self.cumulative_deviation || 0
+				last_execution = DayPlanner::Log.where(name: self.name).last
+				if !last_execution.nil?
+					cumulative_deviation = last_execution.cumulative_deviation || 0
+				else
+					cumulative_deviation = 0
+				end
 				cumulative_deviation += deviation
 				DayPlanner::Log.create(name: name, interval: interval, datetime: now, deviation: deviation, cumulative_deviation: cumulative_deviation)
 			end
