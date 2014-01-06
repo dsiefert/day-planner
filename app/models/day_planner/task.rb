@@ -16,15 +16,21 @@ module DayPlanner
 			fields = {}
 			fields[:name] = options.delete(:name) if options[:name]
 			fields[:interval] = options.delete(:every).to_i if options[:every]
-			fields[:last_execution] = Time.parse("1/1/1")
+#			fields[:last_execution] = Time.parse("1/1/1")
 
 			task = DayPlanner::Task.create(fields)
 		end
 
 		def log(last, now)
 			if ActiveRecord::Base.connection.table_exists?('day_planner_log')
-				deviation = -(last + interval - now)
-				DayPlanner::Log.create(name: name, interval: interval, datetime: now, deviation: deviation)
+				if !last.nil?
+					deviation = -(last + interval - now)
+				else
+					deviation = 0
+				end
+				cumulative_deviation = self.cumulative_deviation || 0
+				cumulative_deviation += deviation
+				DayPlanner::Log.create(name: name, interval: interval, datetime: now, deviation: deviation, cumulative_deviation: cumulative_deviation)
 			end
 		end
 
