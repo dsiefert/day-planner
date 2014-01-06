@@ -14,7 +14,7 @@ module DayPlanner
 			end
 
 			fields = {}
-			fields[:name] = options.delete(:name) if options[:name]
+			fields[:name] = options.delete(:name).to_s if options[:name]
 			fields[:interval] = options.delete(:every).to_i if options[:every]
 
 			task = DayPlanner::Task.create(fields)

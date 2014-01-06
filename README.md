@@ -30,7 +30,7 @@ This file will be read in and its tasks will be added to the schedule automatica
 
 The tasks in the schedule will each be performed on startup and then thereafter according to their stated intervals.
 
-I'm not doing a whole damn ton to protect you from tasks that throw errors, but there is a begin/rescue/end up in there at some point. I definitely am not protecting you from a process that just won't end or anything like that. Remember that your interval is more or less the minimum possible time between instances of the task being performed, as it does not spawn a new thread for each task. (That seemed to cause problems with Heroku.) Setting a shorter interval will help, as it will endeavor to catch up to the schedule if it falls behind but will never execute tasks between its check intervals. Setting the check interval too short could end up blocking your application's main thread, though, particularly if your tasks end up running long.
+I'm not doing a whole damn ton to protect you from tasks that throw errors, but there is a begin/rescue/end up in there at some point. I definitely am not protecting you from a process that just won't end or anything like that. Remember that your interval is more or less the minimum possible time between instances of the task being performed, as it does not spawn a new thread for each task. (That seemed to cause problems with Heroku.) Setting a shorter interval will help, as it will endeavor to catch up to the schedule, by running a task as soon as after half its specified interval if it's fallen behind, but will never execute tasks between the master scheduler thread's check intervals. Setting the check interval too short could end up blocking your application's main thread, though, particularly if your tasks end up running long.
 
 ### Options
 
@@ -80,7 +80,7 @@ If you'd like to log your tasks, go for it. Add logging thusly:
     rails generate day_planner:log
     rake db:migrate
 
-This just adds an extra table entitled 'day_planner_log'. As long as the table's there, it'll log each task execution, as well as every instance in which DayPlanner activates.
+This just adds an extra table entitled 'day_planner_log'. As long as the table's there, it'll log each task execution, as well as every instance in which DayPlanner activates. In addition, it logs each tasks's 'deviation' -- how late it ran, as compared to its previous run -- and the task's 'cumulative deviation', based on previous deviation values for that task's name. This makes it possible for the anxious taskmaster to track the task's runs over time and monitor "catchup" instances.
 
 It may be worth considering clearing the log on every launch. You can add such instruction to your schedule file:
 
